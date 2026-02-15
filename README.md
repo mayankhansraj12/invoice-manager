@@ -1,12 +1,21 @@
 # Invoice Details Module
 
+[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://invoice-manager-super.vercel.app/)
+
 A full-stack Invoice Details application built with React, Node.js, Express, and MongoDB.
+
+**Live Demo:** [https://invoice-manager-super.vercel.app/](https://invoice-manager-super.vercel.app/)  
+**Repository:** [https://github.com/mayankhansraj12/invoice-manager](https://github.com/mayankhansraj12/invoice-manager)
 
 ## Features
 - **Invoice Details**: View comprehensive invoice information including customer details, dates, and line items.
 - **Payments**: Record payments against invoices with real-time balance updates.
 - **Status Tracking**: Automatically updates invoice status (DRAFT -> PAID) based on balance.
 - **clean UI**: Modern, responsive interface built with TailwindCSS.
+
+## Tech Stack
+- **Frontend**: React, Vite, TailwindCSS, Framer Motion, Lucide React, Axios
+- **Backend**: Node.js, Express, MongoDB, Mongoose
 
 ## Project Structure
 - `client/`: React frontend with Vite and TailwindCSS.
@@ -18,7 +27,13 @@ A full-stack Invoice Details application built with React, Node.js, Express, and
 - Node.js (v14 or higher)
 - MongoDB Atlas URI (connection string)
 
-### 1. Backend Setup
+### 1. Clone the Repository
+```bash
+git clone https://github.com/mayankhansraj12/invoice-manager.git
+cd invoice-manager
+```
+
+### 2. Backend Setup
 Navigate to the `server` directory:
 ```bash
 cd server
@@ -48,7 +63,7 @@ npm run dev
 ```
 The server will start on `http://localhost:5000`.
 
-### 2. Frontend Setup
+### 3. Frontend Setup
 Navigate to the `client` directory:
 ```bash
 cd client
@@ -84,6 +99,3 @@ The application will open at `http://localhost:5173`.
 - `POST /api/invoices/archive` - Archive an invoice
 - `POST /api/invoices/restore` - Restore an invoice
 
-## Deployment
-
-For detailed deployment instructions (Render + Vercel), see [DEPLOYMENT.md](./DEPLOYMENT.md).

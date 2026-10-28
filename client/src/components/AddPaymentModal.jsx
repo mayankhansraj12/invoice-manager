@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { getErrorMessage } from '../services/api';
 
@@ -7,13 +7,23 @@ const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
+    useEffect(() => {
+        if (!isOpen) return undefined;
+
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') onClose();
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const val = parseFloat(amount);
         if (!val || val <= 0) {
-            setError('Amount must be typically greater than 0');
+            setError('Amount must be greater than 0');
             return;
         }
         if (val > balanceDue) {
@@ -35,19 +45,31 @@ const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="record-payment-title"
+                className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative"
+            >
                 <button
+                    type="button"
+                    aria-label="Close"
                     onClick={onClose}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
                 >
                     <X size={24} />
                 </button>
 
-                <h2 className="text-xl font-bold mb-4">Record Payment</h2>
+                <h2 id="record-payment-title" className="text-xl font-bold mb-4">
+                    Record Payment
+                </h2>
 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                            htmlFor="payment-amount"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                             Amount to Pay (Max: ₹{balanceDue.toFixed(2)})
                         </label>
                         <div className="relative rounded-md shadow-sm">
@@ -55,8 +77,10 @@ const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
                                 <span className="text-gray-500 sm:text-sm">₹</span>
                             </div>
                             <input
+                                id="payment-amount"
                                 type="number"
                                 step="0.01"
+                                autoFocus
                                 className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                                 placeholder="0.00"
                                 value={amount}

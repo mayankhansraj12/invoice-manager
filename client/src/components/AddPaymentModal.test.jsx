@@ -58,4 +58,34 @@ describe('AddPaymentModal', () => {
     expect(screen.getByText('Amount cannot exceed balance due')).toBeInTheDocument();
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it('asks for an amount greater than zero when none is entered', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<AddPaymentModal isOpen onClose={vi.fn()} onSubmit={onSubmit} balanceDue={500} />);
+
+    await user.click(screen.getByRole('button', { name: 'Confirm Payment' }));
+
+    expect(screen.getByText('Amount must be greater than 0')).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('is announced as a named dialog and closes when Escape is pressed', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<AddPaymentModal isOpen onClose={onClose} onSubmit={vi.fn()} balanceDue={500} />);
+
+    expect(screen.getByRole('dialog', { name: 'Record Payment' })).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('associates the amount label with its input and names the close button', () => {
+    render(<AddPaymentModal isOpen onClose={vi.fn()} onSubmit={vi.fn()} balanceDue={500} />);
+
+    expect(screen.getByLabelText('Amount to Pay (Max: ₹500.00)')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+  });
 });

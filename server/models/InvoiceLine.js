@@ -26,10 +26,9 @@ const InvoiceLineSchema = new mongoose.Schema({
   }
 });
 
-// Calculate lineTotal before saving
-InvoiceLineSchema.pre('save', function(next) {
+// Runs before required checks, so lineTotal is always derived from quantity and unit price
+InvoiceLineSchema.pre('validate', function () {
   this.lineTotal = this.quantity * this.unitPrice;
-  next();
 });
 
 module.exports = mongoose.model('InvoiceLine', InvoiceLineSchema);

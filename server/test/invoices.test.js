@@ -51,7 +51,6 @@ describe('invoice read routes', () => {
       description: 'Consulting',
       quantity: 3,
       unitPrice: 100,
-      lineTotal: 300,
     });
     await Payment.create({ invoiceId, amount: 100 });
   });

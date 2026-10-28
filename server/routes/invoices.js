@@ -5,6 +5,18 @@ const InvoiceLine = require('../models/InvoiceLine');
 const Payment = require('../models/Payment');
 const { parsePaymentAmount, recordPayment } = require('../services/payments');
 
+const OBJECT_ID = /^[0-9a-fA-F]{24}$/;
+
+// Accepts either the Mongo ObjectId or the human-facing invoice number
+const findInvoice = (ref) =>
+  OBJECT_ID.test(ref) ? Invoice.findById(ref) : Invoice.findOne({ invoiceNumber: ref });
+
+const PAYMENT_REJECTIONS = {
+  not_found: { status: 404, message: 'Invoice not found' },
+  archived: { status: 409, message: 'Invoice is archived. Restore it before recording a payment' },
+  exceeds_balance: { status: 400, message: 'Payment amount exceeds balance due' },
+};
+
 // GET /api/invoices
 router.get('/', async (req, res) => {
   try {
@@ -18,16 +30,7 @@ router.get('/', async (req, res) => {
 // GET /api/invoices/:id
 router.get('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    let invoice;
-
-    // Check if valid ObjectId, otherwise search by invoiceNumber
-    if (id.match(/^[0-9a-fA-F]{24}$/)) {
-      invoice = await Invoice.findById(id);
-    } else {
-      invoice = await Invoice.findOne({ invoiceNumber: id });
-    }
-
+    const invoice = await findInvoice(req.params.id);
     if (!invoice) {
       return res.status(404).json({ message: 'Invoice not found' });
     }
@@ -35,44 +38,23 @@ router.get('/:id', async (req, res) => {
     const lines = await InvoiceLine.find({ invoiceId: invoice._id });
     const payments = await Payment.find({ invoiceId: invoice._id }).sort({ paymentDate: -1 });
 
-    res.json({
-      invoice,
-      lines,
-      payments
-    });
+    res.json({ invoice, lines, payments });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Helper to find invoice by ID or Number
-const findInvoice = async (id) => {
-  if (id.match(/^[0-9a-fA-F]{24}$/)) {
-    return await Invoice.findById(id);
-  } else {
-    return await Invoice.findOne({ invoiceNumber: id });
-  }
-};
-
-const PAYMENT_REJECTIONS = {
-  not_found: { status: 404, message: 'Invoice not found' },
-  archived: { status: 409, message: 'Invoice is archived. Restore it before recording a payment' },
-  exceeds_balance: { status: 400, message: 'Payment amount exceeds balance due' },
-};
-
 // POST /api/invoices/:id/payments
 router.post('/:id/payments', async (req, res) => {
   try {
     const amount = parsePaymentAmount(req.body?.amount);
-    const idParam = req.params.id;
-
     if (amount === null) {
       return res.status(400).json({
         message: 'Amount must be a positive number with at most two decimal places',
       });
     }
 
-    const invoice = await findInvoice(idParam);
+    const invoice = await findInvoice(req.params.id);
     if (!invoice) {
       return res.status(404).json({ message: 'Invoice not found' });
     }
@@ -97,12 +79,14 @@ router.post('/:id/payments', async (req, res) => {
   }
 });
 
-// POST /api/invoices/archive
-router.post('/archive', async (req, res) => {
+const setArchived = (isArchived, message) => async (req, res) => {
   try {
-    const { id } = req.body;
-    if (!id) {
+    const id = req.body?.id;
+    if (id === undefined || id === '') {
       return res.status(400).json({ message: 'Invoice ID is required' });
+    }
+    if (typeof id !== 'string') {
+      return res.status(400).json({ message: 'Invoice ID must be a string' });
     }
 
     const invoice = await findInvoice(id);
@@ -110,35 +94,19 @@ router.post('/archive', async (req, res) => {
       return res.status(404).json({ message: 'Invoice not found' });
     }
 
-    invoice.isArchived = true;
+    invoice.isArchived = isArchived;
     await invoice.save();
 
-    res.json({ message: 'Invoice archived', invoice });
+    res.json({ message, invoice });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
+};
+
+// POST /api/invoices/archive
+router.post('/archive', setArchived(true, 'Invoice archived'));
 
 // POST /api/invoices/restore
-router.post('/restore', async (req, res) => {
-  try {
-    const { id } = req.body;
-    if (!id) {
-      return res.status(400).json({ message: 'Invoice ID is required' });
-    }
-
-    const invoice = await findInvoice(id);
-    if (!invoice) {
-      return res.status(404).json({ message: 'Invoice not found' });
-    }
-
-    invoice.isArchived = false;
-    await invoice.save();
-
-    res.json({ message: 'Invoice restored', invoice });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post('/restore', setArchived(false, 'Invoice restored'));
 
 module.exports = router;

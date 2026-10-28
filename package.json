@@ -1,7 +1,7 @@
 {
-    "name": "invoice-maker",
+    "name": "invoice-manager",
     "version": "1.0.0",
-    "description": "Invoice Details Module",
+    "description": "Invoice details and payment tracking module",
     "scripts": {
         "dev": "concurrently \"npm run server\" \"npm run client\"",
         "server": "cd server && npm run dev",
@@ -10,5 +10,9 @@
     },
     "devDependencies": {
         "concurrently": "^8.2.2"
+    },
+    "private": true,
+    "engines": {
+        "node": ">=20.19.0"
     }
 }

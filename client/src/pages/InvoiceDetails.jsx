@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import * as api from '../services/api';
 import Header from '../components/Header';
@@ -8,103 +8,110 @@ import PaymentsList from '../components/PaymentsList';
 import AddPaymentModal from '../components/AddPaymentModal';
 
 const InvoiceDetails = () => {
-    // ... params, state ...
     const { id } = useParams();
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
+    const [actionError, setActionError] = useState(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-    // ... fetchData, effects, handlers ...
-
-    const fetchData = async () => {
+    // Refreshes update the page in place; only the first load replaces it with a placeholder
+    const loadInvoice = useCallback(async () => {
         try {
-            setLoading(true);
-            const result = await api.getInvoice(id);
-            setData(result);
-            setError(null);
+            setData(await api.getInvoice(id));
+            setLoadError(null);
         } catch (err) {
-            console.error(err);
-            setError('Failed to load invoice details');
+            setLoadError(err.response?.status === 404 ? 'not-found' : 'failed');
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
 
     useEffect(() => {
-        if (id) {
-            fetchData();
-        }
-    }, [id]);
+        setData(null);
+        setLoading(true);
+        loadInvoice();
+    }, [loadInvoice]);
 
     const handleAddPayment = async (amount) => {
         await api.addPayment(id, amount);
         setIsPaymentModalOpen(false);
-        await fetchData();
+        await loadInvoice();
     };
 
-    const handleArchive = async () => {
-        // Removed confirmation as requested
+    const changeArchiveState = async (request, failureMessage) => {
+        setActionError(null);
         try {
-            await api.archiveInvoice(id);
-            await fetchData();
+            await request(id);
+            await loadInvoice();
         } catch {
-            console.error('Failed to archive invoice');
+            setActionError(failureMessage);
         }
     };
 
-    const handleRestore = async () => {
-        try {
-            await api.restoreInvoice(id);
-            await fetchData();
-        } catch {
-            console.error('Failed to restore invoice');
-        }
-    };
+    const handleArchive = () =>
+        changeArchiveState(api.archiveInvoice, 'Could not archive this invoice. Try again.');
+
+    const handleRestore = () =>
+        changeArchiveState(api.restoreInvoice, 'Could not restore this invoice. Try again.');
 
     if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-    if (error) return <div className="flex justify-center items-center min-h-screen text-red-600">{error}</div>;
+    if (loadError === 'not-found') {
+        return (
+            <div className="flex flex-col justify-center items-center min-h-screen text-gray-700">
+                <p className="text-lg font-medium">Invoice not found</p>
+                <Link to="/" className="mt-2 text-blue-600 hover:text-blue-800">Back to Dashboard</Link>
+            </div>
+        );
+    }
+    if (loadError) return <div className="flex justify-center items-center min-h-screen text-red-600">Failed to load invoice details</div>;
     if (!data) return null;
 
     const { invoice, lines, payments } = data;
+    const canRecordPayment = !invoice.isArchived && invoice.balanceDue > 0;
 
     return (
         <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 font-sans print:bg-white print:p-0">
             <div className="max-w-4xl mx-auto space-y-8 print:max-w-none print:space-y-0">
                 {/* Action Bar - Hidden in Print */}
-                <div className="flex justify-between items-center print:hidden">
-                    <Link to="/" className="text-gray-500 hover:text-gray-700 flex items-center transition-colors">
-                        <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        Back to Dashboard
-                    </Link>
-                    <div className="flex space-x-3">
-                        <button
-                            onClick={() => window.print()}
-                            className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 shadow-sm transition-all flex items-center"
-                        >
-                            <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                <div className="print:hidden">
+                    <div className="flex justify-between items-center">
+                        <Link to="/" className="text-gray-500 hover:text-gray-700 flex items-center transition-colors">
+                            <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
-                            Print
-                        </button>
-                        {invoice.isArchived ? (
+                            Back to Dashboard
+                        </Link>
+                        <div className="flex space-x-3">
                             <button
-                                onClick={handleRestore}
-                                className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 shadow-sm transition-all"
+                                onClick={() => window.print()}
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 shadow-sm transition-all flex items-center"
                             >
-                                Restore
+                                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                </svg>
+                                Print
                             </button>
-                        ) : (
-                            <button
-                                onClick={handleArchive}
-                                className="px-4 py-2 text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 rounded-md transition-all"
-                            >
-                                Archive
-                            </button>
-                        )}
+                            {invoice.isArchived ? (
+                                <button
+                                    onClick={handleRestore}
+                                    className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 shadow-sm transition-all"
+                                >
+                                    Restore
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleArchive}
+                                    className="px-4 py-2 text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 rounded-md transition-all"
+                                >
+                                    Archive
+                                </button>
+                            )}
+                        </div>
                     </div>
+                    {actionError && (
+                        <p role="alert" className="mt-3 text-right text-sm text-red-600">{actionError}</p>
+                    )}
                 </div>
 
                 {/* Invoice Paper Document */}
@@ -142,7 +149,11 @@ const InvoiceDetails = () => {
                 <div className="mt-8 print:hidden">
                     <h3 className="text-lg font-medium text-gray-900 mb-4 px-2">Payment History</h3>
                     <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden p-6">
-                        <PaymentsList payments={payments} onAddPayment={() => setIsPaymentModalOpen(true)} />
+                        <PaymentsList
+                            payments={payments}
+                            canAddPayment={canRecordPayment}
+                            onAddPayment={() => setIsPaymentModalOpen(true)}
+                        />
                     </div>
                 </div>
 

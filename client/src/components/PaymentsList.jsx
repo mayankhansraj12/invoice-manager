@@ -1,13 +1,15 @@
 import { format } from 'date-fns';
 
-const PaymentsList = ({ payments, onAddPayment }) => {
+const PaymentsList = ({ payments, canAddPayment, onAddPayment }) => {
     return (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Payments</h3>
                 <button
                     onClick={onAddPayment}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
+                    disabled={!canAddPayment}
+                    title={canAddPayment ? undefined : 'Payments cannot be recorded on this invoice'}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
                 >
                     Add Payment
                 </button>

@@ -20,7 +20,7 @@ describe('AddPaymentModal', () => {
   it('shows the balance as the maximum amount when open', () => {
     render(<AddPaymentModal isOpen onClose={vi.fn()} onSubmit={vi.fn()} balanceDue={1250} />);
 
-    expect(screen.getByText('Amount to Pay (Max: ₹1250.00)')).toBeInTheDocument();
+    expect(screen.getByText('Amount to Pay (Max: ₹1,250.00)')).toBeInTheDocument();
   });
 
   it('clears the amount after a successful submission', async () => {

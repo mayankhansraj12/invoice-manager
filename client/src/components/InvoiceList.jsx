@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { format } from 'date-fns';
+import { formatDate, formatWhole } from '../utils/format';
 import * as api from '../services/api';
 
 const CountUp = ({ end, duration = 2000 }) => {
@@ -30,7 +30,7 @@ const CountUp = ({ end, duration = 2000 }) => {
         return () => cancelAnimationFrame(animationFrame);
     }, [end, duration]);
 
-    return <span>{count.toLocaleString()}</span>;
+    return <span>{formatWhole(count)}</span>;
 };
 
 const InvoiceList = () => {
@@ -194,12 +194,12 @@ const InvoiceList = () => {
                                                 <div className="text-left sm:text-right">
                                                     <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">Due Date</div>
                                                     <div className="text-sm font-medium text-gray-700">
-                                                        {format(new Date(invoice.dueDate), 'MMM dd, yyyy')}
+                                                        {formatDate(invoice.dueDate)}
                                                     </div>
                                                 </div>
                                                 <div className="text-right min-w-[120px]">
                                                     <div className="text-lg font-bold text-gray-900 group-hover:scale-105 transition-transform origin-right">
-                                                        ₹{invoice.total.toLocaleString()}
+                                                        ₹{formatWhole(invoice.total)}
                                                     </div>
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
                                                         ${invoice.status === 'PAID' ? 'bg-green-100 text-green-800' :

@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatAmount, formatDate } from '../utils/format';
 
 const PaymentsList = ({ payments, canAddPayment, onAddPayment }) => {
     return (
@@ -28,10 +28,10 @@ const PaymentsList = ({ payments, canAddPayment, onAddPayment }) => {
                         {payments.map((payment) => (
                             <tr key={payment._id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {format(new Date(payment.paymentDate), 'MMM dd, yyyy HH:mm')}
+                                    {formatDate(payment.paymentDate, 'MMM dd, yyyy HH:mm')}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                                    ₹{payment.amount.toFixed(2)}
+                                    ₹{formatAmount(payment.amount)}
                                 </td>
                             </tr>
                         ))}

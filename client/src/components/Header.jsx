@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatAmount, formatDate } from '../utils/format';
 import { company } from '../config/company';
 
 const addressLines = (address = '') =>
@@ -59,15 +59,15 @@ const Header = ({ invoice }) => {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Date Issued</h3>
-                        <p className="text-gray-900 font-medium">{format(new Date(invoice.issueDate), 'MMM dd, yyyy')}</p>
+                        <p className="text-gray-900 font-medium">{formatDate(invoice.issueDate)}</p>
                     </div>
                     <div>
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Due Date</h3>
-                        <p className="text-gray-900 font-medium">{format(new Date(invoice.dueDate), 'MMM dd, yyyy')}</p>
+                        <p className="text-gray-900 font-medium">{formatDate(invoice.dueDate)}</p>
                     </div>
                     <div className="col-span-2 mt-2">
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Amount Due</h3>
-                        <p className="text-2xl font-bold text-gray-900">₹{invoice.balanceDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                        <p className="text-2xl font-bold text-gray-900">₹{formatAmount(invoice.balanceDue)}</p>
                     </div>
                 </div>
             </div>

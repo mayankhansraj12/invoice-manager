@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { format } from 'date-fns';
+import { formatDate } from '../utils/format';
 import * as api from '../services/api';
 import Header from '../components/Header';
 import LineItemsTable from '../components/LineItemsTable';
@@ -141,7 +141,7 @@ const InvoiceDetails = () => {
                         {/* Terms & Footer */}
                         <div className="mt-12 pt-8 border-t-2 border-gray-100 text-gray-500 text-sm">
                             <h4 className="font-semibold text-gray-900 mb-2">Terms & Conditions</h4>
-                            <p className="mb-1">Payment is due by {format(new Date(invoice.dueDate), 'MMM dd, yyyy')}.</p>
+                            <p className="mb-1">Payment is due by {formatDate(invoice.dueDate)}.</p>
                             <p>Please make checks payable to {company.paymentPayableTo}.</p>
                         </div>
                     </div>

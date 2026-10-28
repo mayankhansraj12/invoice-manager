@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { getErrorMessage } from '../services/api';
+import { formatAmount } from '../utils/format';
 
 const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
     const [amount, setAmount] = useState('');
@@ -70,7 +71,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
                             htmlFor="payment-amount"
                             className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                            Amount to Pay (Max: ₹{balanceDue.toFixed(2)})
+                            Amount to Pay (Max: ₹{formatAmount(balanceDue)})
                         </label>
                         <div className="relative rounded-md shadow-sm">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

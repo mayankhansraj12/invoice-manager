@@ -108,11 +108,11 @@ const InvoiceDetails = () => {
                 </div>
 
                 {/* Invoice Paper Document */}
-                <div className="bg-white shadow-2xl rounded-none sm:rounded-lg overflow-hidden print:shadow-none print:rounded-none">
+                <div className="relative bg-white shadow-2xl rounded-none sm:rounded-lg overflow-hidden print:shadow-none print:rounded-none">
                     <div className="p-8 sm:p-12 print:p-0">
                         {/* Status Watermark for specific states */}
                         {invoice.status === 'PAID' && (
-                            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none hidden sm:block">
+                            <div className="absolute top-10 right-10 p-4 opacity-10 pointer-events-none hidden sm:block">
                                 <span className="text-9xl font-black text-green-600 uppercase transform -rotate-12 border-8 border-green-600 p-4 rounded-xl">
                                     PAID
                                 </span>

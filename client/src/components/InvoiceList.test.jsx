@@ -58,6 +58,15 @@ describe('InvoiceList', () => {
     expect(screen.queryByText('70,000')).not.toBeInTheDocument();
   });
 
+  it('describes an empty list without promising a way to create invoices', async () => {
+    api.getInvoices.mockResolvedValue([]);
+    renderList();
+
+    expect(await screen.findByText('No invoices to show')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Invoices' })).toBeInTheDocument();
+    expect(screen.queryByText(/create/i)).not.toBeInTheDocument();
+  });
+
   it('links to invoice numbers that contain path separators with the separator encoded', async () => {
     api.getInvoices.mockResolvedValue([
       makeInvoice({ _id: '9', invoiceNumber: 'INV/9', customerName: 'Slash Co' }),

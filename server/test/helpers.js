@@ -1,6 +1,6 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-const Invoice = require('../models/Invoice');
+const Invoice = require('../src/models/Invoice');
 
 const connectTestDatabase = async () => {
   const mongod = await MongoMemoryServer.create();

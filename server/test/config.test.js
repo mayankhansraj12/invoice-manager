@@ -1,6 +1,6 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { readConfig } = require('../config');
+const { readConfig } = require('../src/config');
 
 const withUri = (env = {}) => ({ MONGODB_URI: 'mongodb://127.0.0.1:27017/test', ...env });
 

@@ -1,7 +1,7 @@
 const { describe, it, before, after, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
-const createApp = require('../app');
-const Invoice = require('../models/Invoice');
+const createApp = require('../src/app');
+const Invoice = require('../src/models/Invoice');
 const { connectTestDatabase, closeTestDatabase, listen, close } = require('./helpers');
 
 describe('error responses', () => {

@@ -1,6 +1,6 @@
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
-const createApp = require('../app');
+const createApp = require('../src/app');
 const {
   connectTestDatabase,
   closeTestDatabase,

@@ -1,9 +1,9 @@
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
-const createApp = require('../app');
-const Invoice = require('../models/Invoice');
-const InvoiceLine = require('../models/InvoiceLine');
-const Payment = require('../models/Payment');
+const createApp = require('../src/app');
+const Invoice = require('../src/models/Invoice');
+const InvoiceLine = require('../src/models/InvoiceLine');
+const Payment = require('../src/models/Payment');
 const {
   connectTestDatabase,
   closeTestDatabase,

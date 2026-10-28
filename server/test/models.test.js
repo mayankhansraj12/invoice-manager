@@ -1,7 +1,7 @@
 const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
-const Payment = require('../models/Payment');
-const InvoiceLine = require('../models/InvoiceLine');
+const Payment = require('../src/models/Payment');
+const InvoiceLine = require('../src/models/InvoiceLine');
 const { connectTestDatabase, closeTestDatabase } = require('./helpers');
 
 const hasIndexOn = (indexes, field) => indexes.some((index) => index.key[field] === 1);

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Invoice = require('./models/Invoice');
-const InvoiceLine = require('./models/InvoiceLine');
-const Payment = require('./models/Payment');
+const Invoice = require('../src/models/Invoice');
+const InvoiceLine = require('../src/models/InvoiceLine');
+const Payment = require('../src/models/Payment');
 
 const DAY_MS = 86400000;
 
@@ -88,7 +88,7 @@ const seedDatabase = async ({ force = false } = {}) => {
 
 const main = async () => {
   require('dotenv').config();
-  const { readConfig } = require('./config');
+  const { readConfig } = require('../src/config');
 
   const config = readConfig();
   await mongoose.connect(config.mongoUri);

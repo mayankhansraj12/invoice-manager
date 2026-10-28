@@ -24,7 +24,7 @@ const detail = (invoice = {}) => ({
     invoiceNumber: 'INV-1',
     customerName: 'Acme Ltd',
     issueDate: '2025-01-10T00:00:00.000Z',
-    dueDate: '2025-02-10T00:00:00.000Z',
+    dueDate: '2025-02-10T12:00:00.000Z',
     status: 'PARTIALLY_PAID',
     total: 1000,
     amountPaid: 400,
@@ -87,6 +87,13 @@ describe('InvoiceDetails', () => {
     expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 
     resolveRefresh(detail());
+  });
+
+  it('states the invoice due date in the terms instead of a fixed number of days', async () => {
+    renderPage();
+
+    expect(await screen.findByText('Payment is due by Feb 10, 2025.')).toBeInTheDocument();
+    expect(screen.queryByText(/15 days/)).not.toBeInTheDocument();
   });
 
   it('enables Add Payment for an open invoice with a balance', async () => {

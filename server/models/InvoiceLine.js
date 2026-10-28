@@ -4,7 +4,8 @@ const InvoiceLineSchema = new mongoose.Schema({
   invoiceId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Invoice',
-    required: true
+    required: true,
+    index: true
   },
   description: {
     type: String,

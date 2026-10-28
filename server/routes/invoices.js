@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Invoice = require('../models/Invoice');
 const InvoiceLine = require('../models/InvoiceLine');
+const Payment = require('../models/Payment');
 const { parsePaymentAmount, recordPayment } = require('../services/payments');
 
 // GET /api/invoices

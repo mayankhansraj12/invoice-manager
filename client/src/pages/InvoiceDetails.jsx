@@ -7,6 +7,7 @@ import LineItemsTable from '../components/LineItemsTable';
 import TotalsSection from '../components/TotalsSection';
 import PaymentsList from '../components/PaymentsList';
 import AddPaymentModal from '../components/AddPaymentModal';
+import { company } from '../config/company';
 
 const InvoiceDetails = () => {
     const { id } = useParams();
@@ -141,7 +142,7 @@ const InvoiceDetails = () => {
                         <div className="mt-12 pt-8 border-t-2 border-gray-100 text-gray-500 text-sm">
                             <h4 className="font-semibold text-gray-900 mb-2">Terms & Conditions</h4>
                             <p className="mb-1">Payment is due by {format(new Date(invoice.dueDate), 'MMM dd, yyyy')}.</p>
-                            <p>Please make checks payable to TechSolutions India Pvt Ltd.</p>
+                            <p>Please make checks payable to {company.paymentPayableTo}.</p>
                         </div>
                     </div>
                 </div>

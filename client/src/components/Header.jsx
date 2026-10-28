@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { company } from '../config/company';
 
 const addressLines = (address = '') =>
     address
@@ -21,16 +22,16 @@ const Header = ({ invoice }) => {
                     <div className="flex items-center mb-2">
                         {/* Placeholder Logo */}
                         <div className="h-10 w-10 bg-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-xl mr-3">
-                            T
+                            {company.name.charAt(0)}
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tight text-gray-900">TechSolutions</span>
+                        <span className="font-extrabold text-2xl tracking-tight text-gray-900">{company.name}</span>
                     </div>
                     <div className="text-gray-500 text-sm leading-relaxed ml-1">
-                        <p>42, Cyber City, DLF Phase 2</p>
-                        <p>Gurugram, Haryana 122002</p>
-                        <p>India</p>
-                        <p className="mt-2 text-blue-600">billing@techsolutions.in</p>
-                        <p>GSTIN: 06ABCDE1234F1Z5</p>
+                        {company.addressLines.map((line) => (
+                            <p key={line}>{line}</p>
+                        ))}
+                        <p className="mt-2 text-blue-600">{company.email}</p>
+                        <p>GSTIN: {company.gstin}</p>
                     </div>
                 </div>
                 

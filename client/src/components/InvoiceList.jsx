@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import * as api from '../services/api';
@@ -147,7 +147,7 @@ const InvoiceList = () => {
                                 </div>
                             </li>
                         ) : (
-                            invoices.map((invoice, index) => (
+                            invoices.map((invoice) => (
                                 <li key={invoice._id} className="group hover:bg-blue-50 transition duration-200 ease-in-out">
                                     <Link to={`/invoices/${invoice.invoiceNumber}`} className="block">
                                         <div className="px-6 py-5 sm:flex items-center justify-between">

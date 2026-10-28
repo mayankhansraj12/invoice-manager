@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import * as api from '../services/api';
 import Header from '../components/Header';
@@ -52,7 +52,7 @@ const InvoiceDetails = () => {
         try {
             await api.archiveInvoice(id);
             await fetchData();
-        } catch (err) {
+        } catch {
             console.error('Failed to archive invoice');
         }
     };
@@ -61,7 +61,7 @@ const InvoiceDetails = () => {
         try {
             await api.restoreInvoice(id);
             await fetchData();
-        } catch (err) {
+        } catch {
             console.error('Failed to restore invoice');
         }
     };

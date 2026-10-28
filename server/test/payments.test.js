@@ -96,4 +96,38 @@ describe('POST /api/invoices/:id/payments amount validation', () => {
 
     assert.equal(response.status, 400);
   });
+
+  it('returns 404 when the invoice does not exist', async () => {
+    const response = await postAmount('MISSING', 10);
+
+    assert.equal(response.status, 404);
+    assert.equal(await Payment.countDocuments(), 0);
+  });
+
+  it('lets only as many concurrent payments through as the balance covers', async () => {
+    await createInvoice({ invoiceNumber: 'INV-2', total: 100 });
+
+    const responses = await Promise.all(
+      Array.from({ length: 10 }, () => postAmount('INV-2', 30)),
+    );
+    const statuses = responses.map((response) => response.status);
+
+    assert.equal(statuses.filter((status) => status === 201).length, 3);
+    assert.equal(statuses.filter((status) => status === 400).length, 7);
+
+    const invoice = await Invoice.findOne({ invoiceNumber: 'INV-2' });
+    assert.equal(invoice.amountPaid, 90);
+    assert.equal(invoice.balanceDue, 10);
+    assert.equal(invoice.status, 'PARTIALLY_PAID');
+    assert.equal(await Payment.countDocuments({ invoiceId: invoice._id }), 3);
+  });
+
+  it('marks the invoice PAID when a payment clears the balance', async () => {
+    const response = await postAmount('INV-1', 75000);
+
+    assert.equal(response.status, 201);
+    const invoice = await Invoice.findOne({ invoiceNumber: 'INV-1' });
+    assert.equal(invoice.balanceDue, 0);
+    assert.equal(invoice.status, 'PAID');
+  });
 });

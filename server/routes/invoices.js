@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Invoice = require('../models/Invoice');
 const InvoiceLine = require('../models/InvoiceLine');
-const Payment = require('../models/Payment');
-const { parsePaymentAmount } = require('../services/payments');
+const { parsePaymentAmount, recordPayment } = require('../services/payments');
 
 // GET /api/invoices
 router.get('/', async (req, res) => {
@@ -54,6 +53,12 @@ const findInvoice = async (id) => {
   }
 };
 
+const PAYMENT_REJECTIONS = {
+  not_found: { status: 404, message: 'Invoice not found' },
+  archived: { status: 409, message: 'Invoice is archived. Restore it before recording a payment' },
+  exceeds_balance: { status: 400, message: 'Payment amount exceeds balance due' },
+};
+
 // POST /api/invoices/:id/payments
 router.post('/:id/payments', async (req, res) => {
   try {
@@ -71,31 +76,21 @@ router.post('/:id/payments', async (req, res) => {
       return res.status(404).json({ message: 'Invoice not found' });
     }
 
+    // Fast path so obvious rejections never write a payment record; recordPayment re-checks atomically.
+    if (invoice.isArchived) {
+      return res.status(409).json({ message: PAYMENT_REJECTIONS.archived.message });
+    }
     if (amount > invoice.balanceDue) {
-      return res.status(400).json({ message: 'Payment amount exceeds balance due' });
+      return res.status(400).json({ message: PAYMENT_REJECTIONS.exceeds_balance.message });
     }
 
-    // Create Payment using the resolved _id
-    const payment = new Payment({
-      invoiceId: invoice._id,
-      amount
-    });
-    await payment.save();
-
-    // Update Invoice
-    invoice.amountPaid += amount;
-    invoice.balanceDue = invoice.total - invoice.amountPaid;
-
-    if (invoice.balanceDue <= 0.01) { // Floating point tolerance
-        invoice.balanceDue = 0;
-        invoice.status = 'PAID';
-    } else {
-        invoice.status = 'PARTIALLY_PAID';
+    const result = await recordPayment(invoice._id, amount);
+    if (result.error) {
+      const { status, message } = PAYMENT_REJECTIONS[result.error];
+      return res.status(status).json({ message });
     }
 
-    await invoice.save();
-
-    res.status(201).json({ payment, invoice });
+    res.status(201).json({ payment: result.payment, invoice: result.invoice });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

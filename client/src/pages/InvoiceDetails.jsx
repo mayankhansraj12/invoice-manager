@@ -38,13 +38,9 @@ const InvoiceDetails = () => {
     }, [id]);
 
     const handleAddPayment = async (amount) => {
-        try {
-            await api.addPayment(id, amount);
-            await fetchData(); // Refresh data
-            setIsPaymentModalOpen(false);
-        } catch (err) {
-            console.error('Failed to add payment: ' + (err.response?.data?.message || err.message));
-        }
+        await api.addPayment(id, amount);
+        setIsPaymentModalOpen(false);
+        await fetchData();
     };
 
     const handleArchive = async () => {

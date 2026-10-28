@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/invoices`;
 
+export const getErrorMessage = (error) =>
+  error.response?.data?.message || error.message || 'Something went wrong';
+
 export const getInvoices = async () => {
   const response = await axios.get(API_URL);
   return response.data;

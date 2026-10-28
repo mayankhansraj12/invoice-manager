@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { getErrorMessage } from '../services/api';
 
 const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
     const [amount, setAmount] = useState('');
     const [error, setError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const val = parseFloat(amount);
         if (!val || val <= 0) {
@@ -18,9 +20,17 @@ const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
             setError('Amount cannot exceed balance due');
             return;
         }
-        onSubmit(val);
-        setAmount('');
+
         setError('');
+        setSubmitting(true);
+        try {
+            await onSubmit(val);
+            setAmount('');
+        } catch (err) {
+            setError(getErrorMessage(err));
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -66,7 +76,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSubmit, balanceDue }) => {
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            disabled={submitting}
+                            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             Confirm Payment
                         </button>

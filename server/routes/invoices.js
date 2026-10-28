@@ -3,6 +3,7 @@ const router = express.Router();
 const Invoice = require('../models/Invoice');
 const InvoiceLine = require('../models/InvoiceLine');
 const Payment = require('../models/Payment');
+const { parsePaymentAmount } = require('../services/payments');
 
 // GET /api/invoices
 router.get('/', async (req, res) => {
@@ -56,11 +57,13 @@ const findInvoice = async (id) => {
 // POST /api/invoices/:id/payments
 router.post('/:id/payments', async (req, res) => {
   try {
-    const { amount } = req.body;
+    const amount = parsePaymentAmount(req.body?.amount);
     const idParam = req.params.id;
 
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ message: 'Amount must be greater than 0' });
+    if (amount === null) {
+      return res.status(400).json({
+        message: 'Amount must be a positive number with at most two decimal places',
+      });
     }
 
     const invoice = await findInvoice(idParam);

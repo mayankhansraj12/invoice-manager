@@ -1,5 +1,6 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
+const Invoice = require('../models/Invoice');
 
 const connectTestDatabase = async () => {
   const mongod = await MongoMemoryServer.create();
@@ -27,10 +28,22 @@ const close = (server) =>
     server.close((error) => (error ? reject(error) : resolve()));
   });
 
+const createInvoice = ({ total = 0, amountPaid = 0, ...fields }) =>
+  Invoice.create({
+    invoiceNumber: 'INV-TEST-001',
+    customerName: 'Test Customer',
+    dueDate: new Date('2025-01-31'),
+    total,
+    amountPaid,
+    balanceDue: total - amountPaid,
+    ...fields,
+  });
+
 module.exports = {
   connectTestDatabase,
   closeTestDatabase,
   resetCollections,
   listen,
   close,
+  createInvoice,
 };

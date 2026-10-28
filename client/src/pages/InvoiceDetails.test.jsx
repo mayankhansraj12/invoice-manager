@@ -118,6 +118,14 @@ describe('InvoiceDetails', () => {
     expect(await screen.findByRole('button', { name: 'Add Payment' })).toBeDisabled();
   });
 
+  it('renders the payment dialog outside the spaced page layout so its backdrop covers the viewport', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'Add Payment' }));
+
+    expect(screen.getByRole('dialog').closest('.space-y-8')).toBeNull();
+  });
+
   it('tells the user when archiving fails', async () => {
     const user = userEvent.setup();
     api.archiveInvoice.mockRejectedValue(httpError(500));

@@ -94,6 +94,21 @@ describe('invoice read routes', () => {
     assert.deepEqual(await response.json(), { message: 'Invoice not found' });
   });
 
+  it('returns the customer address stored on the invoice', async () => {
+    await createInvoice({
+      invoiceNumber: 'INV-7',
+      total: 10,
+      customerAddress: '105, Koramangala 4th Block\nBengaluru, Karnataka 560034',
+    });
+
+    const body = await (await fetch(`${baseUrl}/api/invoices/INV-7`)).json();
+
+    assert.equal(
+      body.invoice.customerAddress,
+      '105, Koramangala 4th Block\nBengaluru, Karnataka 560034',
+    );
+  });
+
   it('keeps archived invoices in the list so they can be restored', async () => {
     await Invoice.updateOne({ invoiceNumber: 'INV-5' }, { isArchived: true });
 

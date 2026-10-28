@@ -10,6 +10,9 @@ const InvoiceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  customerAddress: {
+    type: String
+  },
   issueDate: {
     type: Date,
     default: Date.now

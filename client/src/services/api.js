@@ -11,12 +11,12 @@ export const getInvoices = async () => {
 };
 
 export const getInvoice = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`);
+  const response = await axios.get(`${API_URL}/${encodeURIComponent(id)}`);
   return response.data;
 };
 
 export const addPayment = async (id, amount) => {
-  const response = await axios.post(`${API_URL}/${id}/payments`, { amount });
+  const response = await axios.post(`${API_URL}/${encodeURIComponent(id)}/payments`, { amount });
   return response.data;
 };
 

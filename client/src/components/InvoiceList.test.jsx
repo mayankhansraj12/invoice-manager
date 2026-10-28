@@ -58,6 +58,18 @@ describe('InvoiceList', () => {
     expect(screen.queryByText('70,000')).not.toBeInTheDocument();
   });
 
+  it('links to invoice numbers that contain path separators with the separator encoded', async () => {
+    api.getInvoices.mockResolvedValue([
+      makeInvoice({ _id: '9', invoiceNumber: 'INV/9', customerName: 'Slash Co' }),
+    ]);
+    renderList();
+
+    expect(await screen.findByRole('link', { name: /Slash Co/ })).toHaveAttribute(
+      'href',
+      '/invoices/INV%2F9',
+    );
+  });
+
   it('lists archived invoices with a marker when the toggle is switched on', async () => {
     const user = userEvent.setup();
     renderList();

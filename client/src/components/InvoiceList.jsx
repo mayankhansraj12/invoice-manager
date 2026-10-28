@@ -164,7 +164,7 @@ const InvoiceList = () => {
                         ) : (
                             visibleInvoices.map((invoice) => (
                                 <li key={invoice._id} className="group hover:bg-blue-50 transition duration-200 ease-in-out">
-                                    <Link to={`/invoices/${invoice.invoiceNumber}`} className="block">
+                                    <Link to={`/invoices/${encodeURIComponent(invoice.invoiceNumber)}`} className="block">
                                         <div className="px-6 py-5 sm:flex items-center justify-between">
                                             <div className="flex items-center mb-4 sm:mb-0">
                                                 <div className="flex-shrink-0">

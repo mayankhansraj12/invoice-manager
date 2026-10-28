@@ -152,6 +152,8 @@ invoice-manager/
 │   ├── scripts/seed.js          Sample data loader
 │   ├── test/                    Test suites for the server
 │   └── eslint.config.js
+├── .gitattributes               Keeps line endings LF in the repository
+├── .prettierignore              Files Prettier leaves alone
 ├── .prettierrc.json             Shared formatting rules
 ├── DEPLOYMENT.md                Hosting on Render and Vercel
 └── package.json                 Root scripts that run both packages

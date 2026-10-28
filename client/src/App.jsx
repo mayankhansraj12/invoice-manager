@@ -4,14 +4,14 @@ import InvoiceDetails from './pages/InvoiceDetails';
 import InvoiceList from './components/InvoiceList';
 
 function App() {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/invoices/:id" element={<InvoiceDetails />} />
-                <Route path="/" element={<InvoiceList />} />
-            </Routes>
-        </Router>
-    );
+  return (
+    <Router>
+      <Routes>
+        <Route path="/invoices/:id" element={<InvoiceDetails />} />
+        <Route path="/" element={<InvoiceList />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

@@ -119,9 +119,7 @@ describe('POST /api/invoices/:id/payments amount validation', () => {
   it('lets only as many concurrent payments through as the balance covers', async () => {
     await createInvoice({ invoiceNumber: 'INV-2', total: 100 });
 
-    const responses = await Promise.all(
-      Array.from({ length: 10 }, () => postAmount('INV-2', 30)),
-    );
+    const responses = await Promise.all(Array.from({ length: 10 }, () => postAmount('INV-2', 30)));
     const statuses = responses.map((response) => response.status);
 
     assert.equal(statuses.filter((status) => status === 201).length, 3);

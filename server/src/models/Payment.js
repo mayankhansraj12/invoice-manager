@@ -5,17 +5,17 @@ const PaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Invoice',
     required: true,
-    index: true
+    index: true,
   },
   amount: {
     type: Number,
     required: true,
-    min: 0.01
+    min: 0.01,
   },
   paymentDate: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model('Payment', PaymentSchema);

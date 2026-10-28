@@ -5,26 +5,26 @@ const InvoiceLineSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Invoice',
     required: true,
-    index: true
+    index: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   quantity: {
     type: Number,
     required: true,
-    min: 1
+    min: 1,
   },
   unitPrice: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   lineTotal: {
     type: Number,
-    required: true
-  }
+    required: true,
+  },
 });
 
 // Runs before required checks, so lineTotal is always derived from quantity and unit price

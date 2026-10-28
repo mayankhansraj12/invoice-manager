@@ -4,44 +4,44 @@ const InvoiceSchema = new mongoose.Schema({
   invoiceNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   customerName: {
     type: String,
-    required: true
+    required: true,
   },
   customerAddress: {
-    type: String
+    type: String,
   },
   issueDate: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   dueDate: {
     type: Date,
-    required: true
+    required: true,
   },
   status: {
     type: String,
     enum: ['DRAFT', 'PAID', 'PARTIALLY_PAID', 'OVERDUE'],
-    default: 'DRAFT'
+    default: 'DRAFT',
   },
   total: {
     type: Number,
-    default: 0
+    default: 0,
   },
   amountPaid: {
     type: Number,
-    default: 0
+    default: 0,
   },
   balanceDue: {
     type: Number,
-    default: 0
+    default: 0,
   },
   isArchived: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 module.exports = mongoose.model('Invoice', InvoiceSchema);

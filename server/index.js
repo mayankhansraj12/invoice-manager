@@ -1,13 +1,20 @@
 const dotenv = require('dotenv');
 const connectDB = require('./db');
 const createApp = require('./app');
+const { readConfig } = require('./config');
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+let config;
+try {
+  config = readConfig();
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}
 
-connectDB();
+connectDB(config.mongoUri);
 
-createApp().listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+createApp().listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
 });

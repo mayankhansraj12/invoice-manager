@@ -97,6 +97,18 @@ describe('POST /api/invoices/:id/payments amount validation', () => {
     assert.equal(response.status, 400);
   });
 
+  it('rejects payments on archived invoices with a conflict and records nothing', async () => {
+    await createInvoice({ invoiceNumber: 'INV-3', total: 500, isArchived: true });
+
+    const response = await postAmount('INV-3', 100);
+
+    assert.equal(response.status, 409);
+    assert.match((await response.json()).message, /archived/i);
+    assert.equal(await Payment.countDocuments(), 0);
+    const invoice = await Invoice.findOne({ invoiceNumber: 'INV-3' });
+    assert.equal(invoice.amountPaid, 0);
+  });
+
   it('returns 404 when the invoice does not exist', async () => {
     const response = await postAmount('MISSING', 10);
 

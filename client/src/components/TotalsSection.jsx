@@ -14,7 +14,9 @@ const TotalsSection = ({ invoice }) => {
         </div>
         <div className="flex justify-between text-sm text-gray-500">
           <span>Amount Paid</span>
-          <span className="font-medium text-green-600">-₹{formatAmount(invoice.amountPaid)}</span>
+          <span className="font-medium text-green-600">
+            {invoice.amountPaid > 0 && '-'}₹{formatAmount(invoice.amountPaid)}
+          </span>
         </div>
         <div className="border-t-2 border-gray-900 pt-3 flex justify-between items-end">
           <span className="font-bold text-gray-900 text-lg">Balance Due</span>

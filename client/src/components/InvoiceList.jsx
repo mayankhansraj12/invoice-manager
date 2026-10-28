@@ -37,6 +37,7 @@ const InvoiceList = () => {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showArchived, setShowArchived] = useState(false);
 
     useEffect(() => {
         const fetchInvoices = async () => {
@@ -57,8 +58,11 @@ const InvoiceList = () => {
     if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
     if (error) return <div className="text-center text-red-600 mt-10">{error}</div>;
 
-    const totalAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
-    const totalPaid = invoices.reduce((sum, inv) => sum + inv.amountPaid, 0);
+    // Archived invoices are out of the books: they leave the totals and stay hidden until requested
+    const activeInvoices = invoices.filter((invoice) => !invoice.isArchived);
+    const visibleInvoices = showArchived ? invoices : activeInvoices;
+    const totalAmount = activeInvoices.reduce((sum, inv) => sum + inv.total, 0);
+    const totalPaid = activeInvoices.reduce((sum, inv) => sum + inv.amountPaid, 0);
     const totalPending = totalAmount - totalPaid;
 
     return (
@@ -133,12 +137,23 @@ const InvoiceList = () => {
                 <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
                     <div className="px-6 py-5 border-b border-gray-100 bg-white flex justify-between items-center">
                         <h2 className="text-xl font-bold text-gray-800">Start Invoicing</h2>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {invoices.length} Total
-                        </span>
+                        <div className="flex items-center space-x-4">
+                            <label className="flex items-center text-sm text-gray-600">
+                                <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={showArchived}
+                                    onChange={(e) => setShowArchived(e.target.checked)}
+                                />
+                                Show archived
+                            </label>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {visibleInvoices.length} Total
+                            </span>
+                        </div>
                     </div>
                     <ul className="divide-y divide-gray-100">
-                        {invoices.length === 0 ? (
+                        {visibleInvoices.length === 0 ? (
                             <li className="px-6 py-12 text-center text-gray-500 bg-gray-50">
                                 <div className="flex flex-col items-center justify-center">
                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -147,7 +162,7 @@ const InvoiceList = () => {
                                 </div>
                             </li>
                         ) : (
-                            invoices.map((invoice) => (
+                            visibleInvoices.map((invoice) => (
                                 <li key={invoice._id} className="group hover:bg-blue-50 transition duration-200 ease-in-out">
                                     <Link to={`/invoices/${invoice.invoiceNumber}`} className="block">
                                         <div className="px-6 py-5 sm:flex items-center justify-between">
@@ -163,6 +178,11 @@ const InvoiceList = () => {
                                                 <div className="ml-4">
                                                     <div className="text-sm font-medium text-blue-600 truncate group-hover:text-blue-800 transition-colors">
                                                         {invoice.invoiceNumber}
+                                                        {invoice.isArchived && (
+                                                            <span className="ml-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                                                                Archived
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="text-base font-semibold text-gray-900">
                                                         {invoice.customerName}

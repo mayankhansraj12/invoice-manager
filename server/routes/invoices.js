@@ -19,88 +19,72 @@ const PAYMENT_REJECTIONS = {
 
 // GET /api/invoices
 router.get('/', async (req, res) => {
-  try {
-    const invoices = await Invoice.find().sort({ issueDate: -1 });
-    res.json(invoices);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const invoices = await Invoice.find().sort({ issueDate: -1 });
+  res.json(invoices);
 });
 
 // GET /api/invoices/:id
 router.get('/:id', async (req, res) => {
-  try {
-    const invoice = await findInvoice(req.params.id);
-    if (!invoice) {
-      return res.status(404).json({ message: 'Invoice not found' });
-    }
-
-    const lines = await InvoiceLine.find({ invoiceId: invoice._id });
-    const payments = await Payment.find({ invoiceId: invoice._id }).sort({ paymentDate: -1 });
-
-    res.json({ invoice, lines, payments });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  const invoice = await findInvoice(req.params.id);
+  if (!invoice) {
+    return res.status(404).json({ message: 'Invoice not found' });
   }
+
+  const lines = await InvoiceLine.find({ invoiceId: invoice._id });
+  const payments = await Payment.find({ invoiceId: invoice._id }).sort({ paymentDate: -1 });
+
+  res.json({ invoice, lines, payments });
 });
 
 // POST /api/invoices/:id/payments
 router.post('/:id/payments', async (req, res) => {
-  try {
-    const amount = parsePaymentAmount(req.body?.amount);
-    if (amount === null) {
-      return res.status(400).json({
-        message: 'Amount must be a positive number with at most two decimal places',
-      });
-    }
-
-    const invoice = await findInvoice(req.params.id);
-    if (!invoice) {
-      return res.status(404).json({ message: 'Invoice not found' });
-    }
-
-    // Fast path so obvious rejections never write a payment record; recordPayment re-checks atomically.
-    if (invoice.isArchived) {
-      return res.status(409).json({ message: PAYMENT_REJECTIONS.archived.message });
-    }
-    if (amount > invoice.balanceDue) {
-      return res.status(400).json({ message: PAYMENT_REJECTIONS.exceeds_balance.message });
-    }
-
-    const result = await recordPayment(invoice._id, amount);
-    if (result.error) {
-      const { status, message } = PAYMENT_REJECTIONS[result.error];
-      return res.status(status).json({ message });
-    }
-
-    res.status(201).json({ payment: result.payment, invoice: result.invoice });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  const amount = parsePaymentAmount(req.body?.amount);
+  if (amount === null) {
+    return res.status(400).json({
+      message: 'Amount must be a positive number with at most two decimal places',
+    });
   }
+
+  const invoice = await findInvoice(req.params.id);
+  if (!invoice) {
+    return res.status(404).json({ message: 'Invoice not found' });
+  }
+
+  // Fast path so obvious rejections never write a payment record; recordPayment re-checks atomically.
+  if (invoice.isArchived) {
+    return res.status(409).json({ message: PAYMENT_REJECTIONS.archived.message });
+  }
+  if (amount > invoice.balanceDue) {
+    return res.status(400).json({ message: PAYMENT_REJECTIONS.exceeds_balance.message });
+  }
+
+  const result = await recordPayment(invoice._id, amount);
+  if (result.error) {
+    const { status, message } = PAYMENT_REJECTIONS[result.error];
+    return res.status(status).json({ message });
+  }
+
+  res.status(201).json({ payment: result.payment, invoice: result.invoice });
 });
 
 const setArchived = (isArchived, message) => async (req, res) => {
-  try {
-    const id = req.body?.id;
-    if (id === undefined || id === '') {
-      return res.status(400).json({ message: 'Invoice ID is required' });
-    }
-    if (typeof id !== 'string') {
-      return res.status(400).json({ message: 'Invoice ID must be a string' });
-    }
-
-    const invoice = await findInvoice(id);
-    if (!invoice) {
-      return res.status(404).json({ message: 'Invoice not found' });
-    }
-
-    invoice.isArchived = isArchived;
-    await invoice.save();
-
-    res.json({ message, invoice });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  const id = req.body?.id;
+  if (id === undefined || id === '') {
+    return res.status(400).json({ message: 'Invoice ID is required' });
   }
+  if (typeof id !== 'string') {
+    return res.status(400).json({ message: 'Invoice ID must be a string' });
+  }
+
+  const invoice = await findInvoice(id);
+  if (!invoice) {
+    return res.status(404).json({ message: 'Invoice not found' });
+  }
+
+  invoice.isArchived = isArchived;
+  await invoice.save();
+
+  res.json({ message, invoice });
 };
 
 // POST /api/invoices/archive

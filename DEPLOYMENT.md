@@ -1,6 +1,12 @@
 # Deployment Guide
 
-This guide outlines the steps to deploy the **Invoice Manager** application.
+This guide outlines the steps to deploy the **Invoice Manager** application: the API on Render and the client on Vercel.
+
+## Before you start
+
+- Both services need **Node.js 20.19 or newer**. If a platform's default Node version is older, select a newer one in its settings.
+- The API needs a MongoDB connection string, for example from MongoDB Atlas.
+- The API has no authentication. Restrict who can reach it, or add authentication before publishing it.
 
 ## 1. Backend Deployment (Render.com)
 
@@ -17,8 +23,9 @@ We will deploy the Node.js/Express server to Render.
     - **Build Command**: `npm install`
     - **Start Command**: `node index.js`
 6.  **Environment Variables** (Scroll down to "Advanced" or "Environment"):
-    - Add `MONGODB_URI`: Paste your MongoDB Connection String (from Atlas).
-    - Add `PORT`: `10000` (Render usually sets this, but good to be safe. Your code uses `process.env.PORT`).
+    - Add `MONGODB_URI`: Paste your MongoDB Connection String (from Atlas). The server exits at start-up if this is missing.
+    - Add `CORS_ORIGIN`: Paste your Vercel URL from Step 2, for example `https://your-app.vercel.app`. Leave it unset only if you accept requests from any origin. You can list several origins separated by commas.
+    - Add `PORT`: `10000` (Render usually sets this, but good to be safe. The server reads `process.env.PORT`).
 7.  Click **Create Web Service**.
 8.  **Wait** for the deployment to finish.
 9.  **Copy the Backend URL** provided by Render. You will need this for the Frontend.
@@ -39,10 +46,17 @@ We will deploy the React/Vite client to Vercel.
 6.  Click **Deploy**.
 7.  Vercel will build and deploy your site.
 
-## 3. Post-Deployment Verification
+## 3. Loading Data (Optional)
+
+The sample data script replaces every invoice, line and payment in the database it points to. Use it only on a database you intend to fill with sample data.
+
+- To load the sample invoices into an empty database, run `npm run seed` from the repository root, with `MONGODB_URI` pointing at that database.
+- The script refuses to run when invoices already exist. Adding `-- --force` replaces them. Do not use `--force` against a database that holds real invoices.
+
+## 4. Post-Deployment Verification
 
 1.  Open your new Vercel URL.
 2.  The Home Page should load.
 3.  The Dashboard counters might be `0` initially if the DB is empty or if the backend is "sleeping" (Render free tier sleeps after inactivity).
 4.  Open the Browser Console (F12) to check for any CORS errors if data doesn't load.
-    - _Note: The backend is configured to allow CORS from any origin (`*`), so it should work immediately._
+    - _Note: If `CORS_ORIGIN` is set to your Vercel URL, the browser will only accept responses for that origin. A CORS error usually means the value does not match the URL exactly, including `https://` and without a trailing slash._

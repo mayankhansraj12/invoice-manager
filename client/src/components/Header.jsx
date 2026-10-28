@@ -1,5 +1,11 @@
 import { format } from 'date-fns';
 
+const addressLines = (address = '') =>
+    address
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean);
+
 const Header = ({ invoice }) => {
     const statusColor = {
         DRAFT: 'bg-gray-100 text-gray-800 border-gray-200',
@@ -44,9 +50,9 @@ const Header = ({ invoice }) => {
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Bill To</h3>
                     <div className="text-gray-900">
                         <p className="font-bold text-lg mb-1">{invoice.customerName}</p>
-                        <p className="text-gray-500 text-sm">105, Koramangala 4th Block</p>
-                        <p className="text-gray-500 text-sm">Bengaluru, Karnataka 560034</p>
-                        <p className="text-gray-500 text-sm">India</p>
+                        {addressLines(invoice.customerAddress).map((line, index) => (
+                            <p key={index} className="text-gray-500 text-sm">{line}</p>
+                        ))}
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">

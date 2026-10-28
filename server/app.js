@@ -3,11 +3,11 @@ const cors = require('cors');
 const invoiceRoutes = require('./routes/invoices');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
-const createApp = () => {
+const createApp = ({ corsOrigins } = {}) => {
   const app = express();
 
   app.disable('x-powered-by');
-  app.use(cors());
+  app.use(cors(corsOrigins ? { origin: corsOrigins } : undefined));
   app.use(express.json());
 
   app.get('/', (req, res) => {

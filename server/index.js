@@ -15,6 +15,6 @@ try {
 
 connectDB(config.mongoUri);
 
-createApp().listen(config.port, () => {
+createApp({ corsOrigins: config.corsOrigins }).listen(config.port, () => {
   console.log(`Server running on port ${config.port}`);
 });

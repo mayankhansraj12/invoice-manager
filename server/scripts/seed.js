@@ -44,7 +44,7 @@ const SAMPLE_INVOICES = [
     amountPaid: 0,
     balanceDue: 850000,
     lines: [
-      { description: 'AI Recommendation Engine', quantity: 1, unitPrice: 500000 },
+      { description: 'Recommendation Engine', quantity: 1, unitPrice: 500000 },
       { description: 'Data Analysis Services', quantity: 100, unitPrice: 3500 },
     ],
   },
